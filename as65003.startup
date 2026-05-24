@@ -1,0 +1,26 @@
+#!/bin/sh
+sysctl -w net.ipv4.ip_forward=1
+ip addr add 10.0.13.2/30 dev eth0
+ip link set eth0 up
+
+# Loopback for its own prefix
+ip addr add 172.16.3.1/32 dev lo
+ip link set lo up
+
+# Default route toward the provider (AS65001)
+ip route add default via 10.0.13.1
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+# 2. KILL the zombie without killing the container
+# We use pgrep to find it and kill it specifically
+pkill -9 bgpd || true
+rm -f /var/run/bgpd.sock
+
+# Move and Start
+cp /bgpd.conf /etc/bgpd.conf
+
+
+# 3. Start your custom BGP
+/usr/sbin/bgpd -f /etc/bgpd.conf
+
+ps aux | grep bgpd

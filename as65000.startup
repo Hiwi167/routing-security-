@@ -1,0 +1,36 @@
+#!/bin/sh
+
+# 1. Clear everything
+ip addr flush dev eth0
+
+sysctl -w net.ipv4.ip_forward=1
+ip addr add 10.0.10.254/24 dev eth0
+ip addr add 10.0.88.254/24 dev eth1
+ip link set eth0 up
+ip link set eth1 up
+
+ip route add default via 10.0.10.1
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+# Wait for RPKI data from validator
+mkdir -p /run/bgpd
+while [ ! -s /shared/rpki.conf ]; do 
+   sleep 2
+done
+
+
+# 3. Setup OpenBGPD Environment
+mkdir -p /run/bgpd
+
+pkill -9 bgpd || true
+rm -f /var/run/bgpd.sock
+
+# Move and Start
+cp /bgpd.conf /etc/bgpd.conf
+
+# Link the actual socket to where bgpctl expects it
+ln -sf /var/run/bgpd.sock /run/bgpd/bgpd.sock.0
+# 3. Start your custom BGP
+/usr/sbin/bgpd -f /etc/bgpd.conf
+
+ps aux | grep bgpd

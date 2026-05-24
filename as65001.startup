@@ -1,0 +1,59 @@
+#!/bin/sh
+# 1. Interface and Network Setup
+dhclient eth6
+
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+echo "nameserver 1.1.1.1" >> /etc/resolv.conf
+
+
+apk update
+apk add --no-cache iptables
+
+
+ip addr add 10.0.12.1/30 dev eth0
+ip addr add 10.0.13.1/30 dev eth1
+ip addr add 10.0.110.1/30 dev eth2
+ip addr add 10.0.14.1/30 dev eth3
+ip addr add 10.0.10.1/24 dev eth4
+ip addr add 10.0.88.1/24 dev eth5
+for i in 0 1 2 3 4 5; do ip link set eth$i up; done
+
+
+# 2. Internet and NAT (For downloading OpenBGPD)
+sysctl -w net.ipv4.ip_forward=1
+
+iptables -t nat -A POSTROUTING -o eth6 -j MASQUERADE
+#echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+
+# Ensure the shared folder is ready
+mkdir -p /shared
+# Create the directory and link the socket so bgpctl can find it
+mkdir -p /run/bgpd
+
+# --- THESIS CRITICAL: WAIT FOR VALIDATOR ---
+echo "Waiting for /shared/rpki.conf to be generated..."
+while [ ! -s /shared/rpki.conf ]; do
+    sleep 2
+done
+echo "RPKI data detected."
+
+chmod 644 /shared/rpki.conf
+
+
+pkill -9 bgpd || true
+
+
+rm -f /var/run/bgpd.sock
+ln -sf /var/run/bgpd.sock /run/bgpd/bgpd.sock.0
+
+# Move and Start
+cp /bgpd.conf /etc/bgpd.conf
+
+
+
+# 3. Start your custom BGP
+/usr/sbin/bgpd -f /etc/bgpd.conf
+
+# 5. Diagnostic: Check if it's actually running
+ps aux | grep bgpd

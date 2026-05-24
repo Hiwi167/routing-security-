@@ -1,0 +1,46 @@
+#!/bin/sh
+
+# 1. Network setup
+ip addr add 10.0.88.2/24 dev eth0
+ip link set eth0 up
+dhclient eth1
+#ip route add default via 10.0.88.1
+sysctl -w net.ipv4.ip_forward=1
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+# 2. Setup folders
+mkdir -p /shared/rpki-data
+chmod -R 777 /shared
+
+
+# 4. MANUALLY INJECT LOCAL ROAs (Operational Workaround)
+# This mimics the behavior of the -p flag by appending to the output
+echo "Injecting AS65002 and AS65003 into the roa-set..."
+cat <<EOF > /shared/rpki-data/openbgpd
+roa-set {
+172.16.2.0/24 maxlen 24 source-as 65002
+172.16.3.1/32 maxlen 32 source-as 65003
+172.16.10.1/24 maxlen 27 source-as 65010
+172.16.5.1/16 maxlen 24 source-as 65005
+192.16.2.1/24 maxlen 19 source-as 65004
+}
+aspa-set {
+customer-as 65002 expires 1893456000 provider-as { 65001 }
+customer-as 65003 expires 1893456000 provider-as { 65001 }
+customer-as 65010 expires 1893456000 provider-as { 65001 }
+customer-as 65004 expires 1893456000 provider-as { 65001 }
+# This prevents the IXP from seeing these members' routes as "leaks"
+customer-as 65001 expires 1893456000 provider-as { 65000 }
+customer-as 65005 expires 1893456000 provider-as { 65000 }
+}
+EOF
+
+#cat /etc/rpki/local_lab.roa >> /shared/rpki-data/openbgpd
+# 5. Link for the router
+ln -sf /shared/rpki-data/openbgpd /shared/rpki.conf
+echo "Operational Monitoring Active."
+
+# 5. Run rpki-client in the BACKGROUND (so it doesn't block the script)
+rpki-client -v -o /shared/rpki-data/ &
+
+tail -f /dev/null

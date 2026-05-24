@@ -1,0 +1,28 @@
+#!/bin/sh
+sysctl -w net.ipv4.ip_forward=1
+ip addr add 10.0.10.3/24 dev eth0
+ip link set eth0 up
+ip addr add 172.16.0.0/16 dev lo
+ip link set lo up
+
+ip route add default via 10.0.10.254
+echo "nameserver 8.8.8.8" > /etc/resolv.conf
+
+mkdir -p /run/bgpd
+while [ ! -s /shared/rpki.conf ]; do sleep 2; done
+ln -sf /var/run/bgpd.sock /run/bgpd/bgpd.sock.0
+
+pkill -9 bgpd || true
+rm -f /var/run/bgpd.sock
+
+
+
+# Move and Start
+cp /bgpd.conf /etc/bgpd.conf
+
+
+# 3. Start your custom BGP
+/usr/sbin/bgpd -f /etc/bgpd.conf
+
+
+ps aux | grep bgpd

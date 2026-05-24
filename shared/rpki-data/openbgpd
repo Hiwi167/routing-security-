@@ -1,0 +1,15 @@
+roa-set {
+    172.16.2.0/24 maxlen 26 source-as 65002
+    172.16.3.1/32 maxlen 32 source-as 65003
+    172.16.10.1/24 maxlen 27 source-as 65010
+    172.16.0.0/16 maxlen 24 source-as 65005
+    192.16.2.1/24 maxlen 25 source-as 65004
+}
+aspa-set {
+    customer-as 65002 expires 1893456000 provider-as { 65001 }
+    customer-as 65003 expires 1893456000 provider-as { 65001 }
+    customer-as 65004 expires 1893456000 provider-as { 65001 }
+    customer-as 65010 expires 1893456000 provider-as { 65001 }
+    customer-as 65001 expires 1893456000 provider-as { 65000 }
+    customer-as 65005 expires 1893456000 provider-as { 65000 }
+}

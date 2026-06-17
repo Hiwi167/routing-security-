@@ -1,4 +1,4 @@
-# BGP Routing Security Lab: RPKI and ASPA Evaluation
+<img width="851" height="432" alt="image" src="https://github.com/user-attachments/assets/3591ac9d-3284-4c89-a787-7c20273e5eba" /># BGP Routing Security Lab: RPKI and ASPA Evaluation
 
 ## Overview
 
@@ -47,7 +47,7 @@ The lab reproduces:
 - Prefix Hijack: Unauthorized origin announcement of IP prefixes
 - Sub-Prefix Hijack: More-specific prefix advertisement overriding legitimate routes
 - Route Leak: Improper propagation of learned routes beyond intended AS boundaries
-- AS-PATH Manipulation: Forged or altered path attributes to influence routing decisions
+
 
 ## Security Mechanisms Evaluated
 
@@ -63,9 +63,22 @@ The lab reproduces:
 - Reduces impact of route leaks and forged path attacks
 - Strengthens inter-domain routing trust model
 
-## Architecture
 
-The system uses a hierarchical AS topology where a central transit AS (AS65001) interacts with multiple customer and peer networks to simulate real-world routing behavior.
+
+## Experimental Topology
+
+The laboratory consists of:
+
+- AS65001 (Transit Provider and Security Enforcement Router)
+- AS65002, AS65003, AS65010 (Customer Networks)
+- AS65004 (Additional Transit Provider)
+- AS65005 (IXP Participant)
+- AS65000 (IXP Route Server)
+- AS65099 (Malicious Attacker)
+- RPKI Validator
+- <img width="975" height="934" alt="image" src="https://github.com/user-attachments/assets/e139faa9-4545-4491-bec3-7b123195c43a" />
+
+
 
 ## Results
 
@@ -75,4 +88,27 @@ The experiments demonstrate:
 - Remaining gaps in path validation without ASPA
 - Improved routing stability when both RPKI and ASPA are deployed
 
-## Project Structure
+## Running the Lab
+
+Requirements:
+
+Docker
+Kathará
+Linux Environment
+
+Clone the repository:
+
+git clone https://github.com/Hiwi167/routing-security-
+cd routing-security-
+
+Start the laboratory:
+
+kathara lstart
+
+Access routers:
+
+kathara connect as65001
+
+Verify BGP:
+
+bgpctl show rib

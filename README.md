@@ -1,5 +1,3 @@
-<img width="851" height="432" alt="image" src="https://github.com/user-attachments/assets/3591ac9d-3284-4c89-a787-7c20273e5eba" /># BGP Routing Security Lab: RPKI and ASPA Evaluation
-
 ## Overview
 
 This project implements an emulated inter-domain routing security laboratory using BGP to study fundamental Internet routing vulnerabilities and their mitigations.
@@ -54,15 +52,21 @@ The lab reproduces:
 ### RPKI (Route Origin Validation)
 - Validates whether an AS is authorized to originate a prefix
 - Classifies routes as:
-  - VALID
-  - INVALID
+  - VALID (v)
+  - INVALID (!)
   - NOT FOUND
+  - <img width="900" height="437" alt="image" src="https://github.com/user-attachments/assets/19a3dffc-14e6-433d-9fa4-5f81781ff340" />
+
 
 ### ASPA (AS Provider Authorization)
 - Validates AS path relationships
 - Reduces impact of route leaks and forged path attacks
 - Strengthens inter-domain routing trust model
-
+Classifies routes as:
+  - VALID (v)
+  - INVALID (!)
+  - NOT FOUND
+<img width="1019" height="419" alt="image" src="https://github.com/user-attachments/assets/ea5ea334-577b-4209-965b-e6bff38aeca6" />
 
 
 ## Experimental Topology
